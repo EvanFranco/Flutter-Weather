@@ -9,4 +9,4 @@ This weather app fethces weather data once you input a tag inside the awsS3 buck
 
 Ex. 'USC00069388" gives us the data for please give it a try!
 
-Note this is unfinsihed and still needs graph implentation/metric implemtation :)!
+Note this is unfinsihed and still needs graph and metric/imperial implemtation :)!
