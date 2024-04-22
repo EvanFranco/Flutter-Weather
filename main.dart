@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:csv/csv.dart';
 
-
 void main() {
   runApp(MyApp());
 }
@@ -22,15 +21,18 @@ class WeatherData {
   final String latitude;
   final String longitude;
   final String stationId;
-  final String average;
+  final double averageFahrenheit;
 
   WeatherData({
     required this.name,
     required this.latitude,
     required this.longitude,
     required this.stationId,
-    required this.average,
+    required this.averageFahrenheit,
   });
+
+  // Method to convert Fahrenheit to Celsius
+  double get averageCelsius => (averageFahrenheit - 32) * 5 / 9;
 }
 
 class WeatherDataService {
@@ -55,14 +57,13 @@ class WeatherDataService {
           totalTemp += double.parse(csvData[i][9].toString());
         }
         double averageTemp = totalTemp / 12;
-        String average = averageTemp.toStringAsFixed(2); // Format average to 2 decimal places
 
         return WeatherData(
           name: name,
           latitude: latitude,
           longitude: longitude,
           stationId: stationId,
-          average: average,
+          averageFahrenheit: averageTemp,
         );
       } else {
         print('Failed to fetch weather data: ${response.statusCode}');
@@ -168,8 +169,20 @@ class _WeatherAppState extends State<WeatherApp> {
                     Text('Latitude: ${_weatherData!.latitude}'),
                     Text('Longitude: ${_weatherData!.longitude}'),
                     Text('Station ID: ${_weatherData!.stationId}'),
-                    Text('Average Temperature: ${_weatherData!.average}F°'),
-                    
+                    Row(
+                      children: [
+                        Text('Average Temperature: ${_weatherData!.averageFahrenheit.toStringAsFixed(2)}F°'),
+                        SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Convert temperature to Celsius
+                            double averageCelsius = _weatherData!.averageCelsius;
+                            _showTemperatureConversionDialog(averageCelsius);
+                          },
+                          child: Text('Convert to Celsius'),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -177,6 +190,26 @@ class _WeatherAppState extends State<WeatherApp> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showTemperatureConversionDialog(double averageCelsius) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Temperature in Celsius'),
+          content: Text('Average Temperature: ${averageCelsius.toStringAsFixed(2)}°C'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
